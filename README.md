@@ -1,45 +1,167 @@
-# Multicomponent Flash Solver
+# ⚗️ Multicomponent Flash Solver
 
-A **thermodynamic flash calculation simulator** implemented in Python that predicts vapor–liquid equilibrium (VLE) of multicomponent mixtures using both **ideal models** and the **Peng–Robinson equation of state**.
+![Python](https://img.shields.io/badge/Python-3.10+-blue)
+![Streamlit](https://img.shields.io/badge/Streamlit-App-red)
+![License](https://img.shields.io/badge/License-MIT-green)
 
-This project demonstrates the core algorithms used in chemical process simulators such as **Aspen Plus** and **HYSYS**.
+An **interactive Vapor–Liquid Equilibrium (VLE) flash calculation tool** for chemical engineering.
 
----
+This project implements a **multicomponent isothermal flash solver** similar to the thermodynamic core used in **Aspen Plus / Aspen HYSYS**.
 
-# Overview
+Users can compute:
 
-In many chemical processes, mixtures of components split into **vapor and liquid phases** depending on temperature and pressure.
+- Vapor fraction (ψ)
+- Liquid phase composition
+- Vapor phase composition
+- Equilibrium K-values
 
-This project computes:
+using either:
 
-- Vapor fraction of the mixture
-- Composition of liquid phase
-- Composition of vapor phase
-
-for a given **temperature, pressure, and feed composition**.
-
-The solver implements the **Rachford–Rice equation** together with thermodynamic models to determine phase equilibrium.
-
----
-
-# Features
-
-- Multicomponent **isothermal flash calculations**
-- Ideal vapor-liquid equilibrium using **Raoult's Law**
-- Real thermodynamics using **Peng–Robinson EOS**
-- Fugacity coefficient calculations
-- Numerical solution of the **Rachford–Rice equation**
-- Visualization of phase behavior
-- Command line interface
-- Interactive **Streamlit web application**
+- **Raoult's Law (ideal thermodynamics)**
+- **Peng–Robinson Equation of State (real thermodynamics)**
 
 ---
 
-# Project Structure
+#  Live Web App
+
+Try the interactive solver here:
+
+**https://flash-solver-mbnzf7anbs3vj57k6cappmz.streamlit.app/**
+
+The Streamlit app allows users to:
+
+- adjust **temperature and pressure**
+- select mixture **components**
+- choose thermodynamic **models**
+- visualize **phase compositions**
+
+---
+
+#  Demo
+
+## Interface
+
+![Flash Solver Interface](interface.png)
+
+---
+
+## Phase Composition Results
+
+![Composition Results](composition_results.png)
+
+---
+
+## Vapor Fraction vs Pressure
+
+![Vapor Fraction vs Pressure](vapour_fraction_vs_pressure.png)
+
+---
+
+# Theory
+
+Flash calculations determine **phase equilibrium** for a mixture at a given **temperature (T)** and **pressure (P)**.
+
+At equilibrium, the **fugacity of each component must be equal in both phases**:
+
+
+fᵢᴸ = fᵢⱽ
+
+
+This leads to the **equilibrium ratio (K-value)**:
+
+
+Kᵢ = yᵢ / xᵢ
+
+
+Where:
+
+- **xᵢ** = liquid mole fraction  
+- **yᵢ** = vapor mole fraction  
+
+---
+
+## Rachford–Rice Equation
+
+The vapor fraction **ψ (psi)** is obtained by solving:
+
+
+f(ψ) = Σ [ zᵢ (Kᵢ − 1) / (1 + ψ (Kᵢ − 1)) ] = 0
+
+
+Where:
+
+- **zᵢ** = feed mole fraction  
+- **xᵢ** = liquid composition  
+- **yᵢ** = vapor composition  
+
+Physical interpretation of ψ:
+
+| ψ value | Phase state |
+|------|------|
+| ψ = 0 | All liquid |
+| ψ = 1 | All vapor |
+| 0 < ψ < 1 | Two-phase equilibrium |
+
+The solver uses **Brent's root-finding method** for robust convergence.
+
+---
+
+## Thermodynamic Models
+
+### Ideal Model (Raoult's Law)
+
+
+Kᵢ = P_sat,i / P
+
+
+Used for:
+
+- low pressure systems
+- ideal mixtures
+- educational demonstrations
+
+---
+
+### Peng–Robinson Equation of State
+
+
+P = RT/(V − b) − a(T) / [ V(V + b) + b(V − b) ]
+
+
+Used for:
+
+- hydrocarbons
+- high-pressure systems
+- natural gas processing
+
+Real K-values are computed from **fugacity coefficients**:
+
+
+Kᵢ = φᵢᴸ / φᵢⱽ
+
+---
+
+#  Features
+
+✔ Multicomponent flash calculation  
+✔ Rachford–Rice vapor fraction solver  
+✔ Raoult's Law thermodynamic model  
+✔ Peng–Robinson EOS  
+✔ Component thermodynamic database  
+✔ Interactive Streamlit interface  
+✔ Composition visualization plots  
+✔ Vapor fraction sensitivity analysis  
+
+---
+
+#  Project Structure
 
 ```
 
-flash-solver/
+flash-solver
+│
+├── data/
+│   └── component_database.csv
 │
 ├── flash/
 │   ├── flash_calculation.py
@@ -47,23 +169,16 @@ flash-solver/
 │
 ├── thermodynamics/
 │   ├── antoine.py
-│   ├── raoults_law.py
+│   ├── fugacity.py
 │   ├── peng_robinson.py
-│   └── fugacity.py
+│   └── raoults_law.py
 │
 ├── visualization/
 │   └── phase_diagrams.py
 │
-├── utils/
-│   └── numerical_methods.py
-│
 ├── examples/
 │   ├── methane_ethane_flash.py
-│   ├── natural_gas_flash.py
-│   └── propane_butane_flash.py
-│
-├── data/
-│   └── component_database.csv
+│   └── natural_gas_flash.py
 │
 ├── streamlit_app.py
 ├── main.py
@@ -74,188 +189,138 @@ flash-solver/
 
 ---
 
-# Theory
+#  Installation
 
-## Phase Equilibrium Condition
-
-At equilibrium:
+Clone the repository
 
 ```
 
-f_i^L = f_i^V
-
-```
-
-which leads to the equilibrium ratio:
-
-```
-
-K_i = y_i / x_i
-
-```
-
-where
-
-- `x_i` = liquid mole fraction  
-- `y_i` = vapor mole fraction
-
----
-
-## Rachford–Rice Equation
-
-The vapor fraction `ψ` is obtained by solving:
-
-```
-
-f(ψ) = Σ [ z_i (K_i − 1) / (1 + ψ (K_i − 1)) ] = 0
-
-```
-
-where
-
-- `z_i` = feed composition
-- `K_i` = equilibrium constant
-
----
-
-## Thermodynamic Models
-
-### Ideal Model
-
-Raoult's Law:
-
-```
-
-K_i = P_sat,i / P
-
-```
-
-where saturation pressure is computed using the **Antoine equation**.
-
----
-
-### Real Model
-
-The project implements the **Peng–Robinson Equation of State**:
-
-```
-
-P = RT/(V − b) − a(T)/(V(V + b) + b(V − b))
-
-````
-
-Fugacity coefficients are used to compute real K-values.
-
----
-
-# Installation
-
-Clone the repository:
-
-```bash
-git clone https://github.com/yourusername/flash-solver.git
+git clone [https://github.com/Deepanshu-Sati/flash-solver.git](https://github.com/Deepanshu-Sati/flash-solver.git)
 cd flash-solver
-````
 
-Install dependencies:
+```
 
-```bash
+Install dependencies
+
+```
+
 pip install -r requirements.txt
+
 ```
 
 ---
 
-# Running the Flash Solver
+#  Run Web App
 
-## Command Line Interface
-
-Example flash calculation:
-
-```bash
-python main.py --components methane ethane propane \
---feed 0.5 0.3 0.2 \
---temperature 25 \
---pressure 10 \
---model pr \
---plot
 ```
 
-The output includes:
-
-* phase state
-* vapor fraction
-* liquid composition
-* vapor composition
-
----
-
-# Running the Streamlit App
-
-Launch the interactive interface:
-
-```bash
 streamlit run streamlit_app.py
+
 ```
 
-The web interface allows users to:
+Then open:
 
-* choose components
-* adjust temperature and pressure
-* run flash calculations
-* visualize phase compositions and phase behavior
-
----
-
-# Example Simulations
-
-Run the example scripts:
-
-```bash
-python -m examples.natural_gas_flash
 ```
 
-or
+[http://localhost:8501](http://localhost:8501)
 
-```bash
-python -m examples.methane_ethane_flash
 ```
 
-These simulate realistic mixtures such as **natural gas separation**.
+---
+
+#  Command Line Example
+
+```
+
+python main.py 
+--components methane ethane propane 
+--feed 0.6 0.3 0.1 
+--temperature 25 
+--pressure 10 
+--model pr
+
+```
 
 ---
 
-# Applications
+#  Example Studies
 
-Flash calculations are widely used in:
+### Methane–Ethane Binary Flash
 
-* Natural gas processing
-* Petroleum refining
-* Distillation column design
-* Separation process simulation
-* Process simulators (Aspen Plus, HYSYS)
+Demonstrates phase equilibrium behavior for light hydrocarbons.
 
----
+### Natural Gas Flash Separator
 
-# Future Improvements
+Typical natural gas mixture:
 
-Possible extensions include:
-
-* Phase envelope calculation
-* PT flash (energy balance)
-* Distillation column simulation
-* Support for additional equations of state (SRK)
-* Thermodynamic parameter estimation
+| Component | Fraction |
+|------|------|
+| methane | 0.70 |
+| ethane | 0.15 |
+| propane | 0.08 |
+| n-butane | 0.04 |
+| n-pentane | 0.03 |
 
 ---
 
-# License
+#  Validation
 
-This project is licensed under the **MIT License**.
+The solver was validated using:
+
+- published VLE data
+- NIST thermodynamic properties
+- mass balance checks
+
+Verification criteria:
+
+| Test | Expected |
+|----|----|
+| Mass balance | Σx = Σy = 1 |
+| Bubble point | ψ = 0 |
+| Dew point | ψ = 1 |
+| PR-EOS convergence | < 30 iterations |
 
 ---
 
-# Author
+#  Requirements
 
-Developed as a chemical engineering simulation project.
+```
 
-````
+numpy
+scipy
+pandas
+matplotlib
+streamlit
+
+```
+
+---
+
+#  Future Extensions
+
+Possible research-level improvements:
+
+- Phase envelope tracing
+- PT flash calculations
+- Three-phase flash (VLLE)
+- Activity coefficient models (NRTL / Wilson)
+- CoolProp integration
+- GPU acceleration
+
+---
+
+#  Author
+
+**Deepanshu Sati**  
+Chemical Engineering  
+National Institute of Technology Hamirpur
+
+---
+
+#  License
+
+MIT License
+
+---
+
+
